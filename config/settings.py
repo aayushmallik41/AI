@@ -1,0 +1,2 @@
+ASSISTANT_NAME = "Jarvis"
+OWNER_NAME = "Boss"
