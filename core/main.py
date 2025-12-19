@@ -5,26 +5,35 @@ from config.settings import OWNER_NAME, ASSISTANT_NAME
 
 def main():
     speak(f"Hello {OWNER_NAME}, {ASSISTANT_NAME} is online.")
+pending_action = None
 
-    while True:
+while True:
         heard_text = listen()
 
         if not heard_text:
             continue
 
-        # Wake word check
         if ASSISTANT_NAME.lower() not in heard_text:
-            print("Wake word not detected.")
             continue
 
-        # Extract command after wake word
         command = heard_text.replace(ASSISTANT_NAME.lower(), "").strip()
-        print(f"COMMAND AFTER WAKE WORD: {command}")
+        print(f"COMMAND: {command}")
+
+        if pending_action == "SHUTDOWN_CONFIRM":
+            if "yes" in command:
+                from core.system_controller import shutdown_system
+                shutdown_system()
+                pending_action = None
+                continue
+            else:
+                speak("Shutdown cancelled.")
+                pending_action = None
+                continue
 
         result = route_command(command)
 
         if result == "EXIT":
             break
 
-if __name__ == "__main__":
-    main()
+        if result == "CONFIRM_SHUTDOWN":
+            pending_action = "SHUTDOWN_CONFIRM"
